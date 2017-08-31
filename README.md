@@ -1,1 +1,1 @@
-use frgl on xcode
+use ftgl on xcode

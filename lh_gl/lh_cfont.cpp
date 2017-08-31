@@ -5,9 +5,7 @@
 //  Created by Liu,Han(ARL) on 2017/8/30.
 //  Copyright © 2017年 Liu,Han(ARL). All rights reserved.
 //
-
 #include "lh_cfont.hpp"
-
 
 FTPixmapFont* CLHFront::infoFont = nullptr;
 FTLayout* CLHFront::layouts[2] = { &simpleLayout, NULL };
@@ -19,8 +17,8 @@ int CLHFront::current_font = FTGL_EXTRUDE;
 int CLHFront::mode = INTERACTIVE;
 int CLHFront::carat = 0;
 int CLHFront::currentLayout = 0;
-
 int CLHFront::NumLayouts = 2;
+
 float CLHFront::InitialLineLength = 600.0f;
 float CLHFront::OX = -300;
 float CLHFront::OY = 170;
@@ -46,7 +44,6 @@ std::string CLHFront::fontfile;
 GLuint CLHFront::textureID[2];
 
 
-
 CLHFront::CLHFront()
 {}
 
@@ -55,13 +52,20 @@ CLHFront::~CLHFront()
 
 void CLHFront::setUpLighting()
 {
+    
     // Set up lighting.
+    /*
     float light1_ambient[4]  = { 0.5, 0.5, 0.5, 1.0 };
     float light1_diffuse[4]  = { 1.0, 0.9, 0.9, 1.0 };
     float light1_specular[4] = { 1.0, 0.7, 0.7, 1.0 };
     float light1_position[4] = { 400.0, 400.0, 100.0, 1.0 };
+    */
+    float light1_ambient[4]  = { 1.0, 0.0, 0.0, 1.0 };
+    float light1_diffuse[4]  = { 0.0, 1.0, 0.0, 1.0 };
+    float light1_specular[4] = { 0.0, 0.0, 1.0, 1.0 };
+    float light1_position[4] = { 400.0, 400.0, 100.0, 1.0 };
     glLightfv(GL_LIGHT1, GL_AMBIENT,  light1_ambient);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE,  light1_diffuse);
+    //glLightfv(GL_LIGHT1, GL_DIFFUSE,  light1_diffuse);
     glLightfv(GL_LIGHT1, GL_SPECULAR, light1_specular);
     glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
     glEnable(GL_LIGHT1);
@@ -70,9 +74,9 @@ void CLHFront::setUpLighting()
     float front_ambient[4]  = { 0.4, 0.4, 0.4, 0.0 };
     float front_diffuse[4]  = { 0.95, 0.95, 0.8, 0.0 };
     float front_specular[4] = { 0.8, 0.8, 0.8, 0.0 };
-    glMaterialfv(GL_FRONT, GL_EMISSION, front_emission);
+    //glMaterialfv(GL_FRONT, GL_EMISSION, front_emission);
     glMaterialfv(GL_FRONT, GL_AMBIENT, front_ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, front_diffuse);
+    //glMaterialfv(GL_FRONT, GL_DIFFUSE, front_diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR, front_specular);
     glMaterialf(GL_FRONT, GL_SHININESS, 25.0);
     glColor4fv(front_diffuse);
@@ -103,20 +107,18 @@ void CLHFront::setUpFonts(const char* file)
             exit(1);
         }
         
-        if(!fonts[x]->FaceSize(30))
+        if(!fonts[x]->FaceSize(50))
         {
             fprintf(stderr, "Failed to set size");
             exit(1);
         }
         
-        fonts[x]->Depth(3.);
-        fonts[x]->Outset(-.5, 1.5);
-        
+        fonts[x]->Depth(6.);
+        fonts[x]->Outset(-1.0, 1.0);
         fonts[x]->CharMap(ft_encoding_unicode);
     }
     
     infoFont = new FTPixmapFont(file);
-    
     if(infoFont->Error())
     {
         fprintf(stderr, "Failed to open font %s", file);
@@ -125,7 +127,6 @@ void CLHFront::setUpFonts(const char* file)
     
     infoFont->FaceSize(18);
     strcpy(myString,
-           "ABC DEF GHIJ KLM NOP QRS TUV WXYZ 01 23 45 67 89\n"
            "开始绘制图形之前，我们必须先给OpenGL输入一些顶点。OpenGL是一个3D图形库，所以我们在OpenGL中指定的所有坐标都是3D坐标（x、y和z）。OpenGL不是简单地把所有的3D坐标变换为屏幕上的2D像素；");
     
 }
@@ -152,7 +153,8 @@ void CLHFront::renderFontmetrics()
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE); // GL_ONE_MINUS_SRC_ALPHA
-    
+ /*
+   //上下横线
     glColor3f(0.0, 1.0, 0.0);
     // Draw the front face
     glBegin(GL_LINE_LOOP);
@@ -185,7 +187,10 @@ void CLHFront::renderFontmetrics()
         glVertex3f(x2, y1, z2);
         glEnd();
     }
-    
+*/
+
+/*
+ //竖线
     // Render layout-specific metrics
     if(!layouts[currentLayout])
     {
@@ -213,7 +218,10 @@ void CLHFront::renderFontmetrics()
         glVertex3f(lineWidth, -10000, 0);
         glEnd();
     }
+*/
     
+    /*
+    // 坐标轴
     // Draw the origin
     glTranslatef(-OX, -OY,0);
     glColor3f(1.0, 0.0, 0.0);
@@ -237,19 +245,24 @@ void CLHFront::renderFontmetrics()
     glVertex3f(0,0,0);
     glVertex3f(0,0,100);
     glEnd();
+    */
 }
 
 
 void CLHFront::renderFontInfo()
 {
+    return;
+    
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0, w_win, 0, h_win);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
+    
+    
     // draw mode
-    glColor3f(1.0, 1.0, 1.0);
+    glColor3f(0.0, 1.0, 0.0);
     glRasterPos2f(20.0f , h_win - (20.0f + infoFont->Ascender()));
     
     switch(mode)
@@ -373,11 +386,9 @@ void CLHFront::do_display(void)
                                         FTPoint(), FTPoint(), renderMode);
     }
     glPopMatrix();
-    
     glPushMatrix();
     renderFontmetrics();
     glPopMatrix();
-    
     renderFontInfo();
 }
 
@@ -385,7 +396,6 @@ void CLHFront::do_display(void)
 void CLHFront::display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
     SetCamera();
     
     switch(current_font)
@@ -405,21 +415,17 @@ void CLHFront::display(void)
     }
     
     glPushMatrix();
-    
     do_display();
-    
     glPopMatrix();
-    
     glutSwapBuffers();
 }
-
 
 
 void CLHFront::_init(const char* file)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.5, 0.5, 0.7, 0.0);
-    glColor3f(1.0, 1.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glColor3f(0.0, 1.0, 0.0);
     
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
@@ -432,18 +438,14 @@ void CLHFront::_init(const char* file)
     glPolygonOffset(1.0, 1.0); // ????
     
     SetCamera();
-    
     tbInit(GLUT_LEFT_BUTTON);
     tbAnimate(GL_FALSE);
-    
     setUpFonts(file);
     
     // Configure the SimpleLayout
     simpleLayout.SetLineLength(InitialLineLength);
     simpleLayout.SetFont(fonts[current_font]);
-    
     glGenTextures(2, textureID);
-    
     for(int i = 0; i < 2; i++)
     {
         glBindTexture(GL_TEXTURE_2D, textureID[i]);
@@ -622,7 +624,6 @@ void CLHFront::myReshape(int w, int h)
     w_win = w;
     h_win = h;
     SetCamera();
-    
     tbReshape(w_win, h_win);
 }
 
